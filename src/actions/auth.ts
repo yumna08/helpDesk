@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import type { Role } from "@/lib/domain-types";
 import {
   createSessionCookie,
   clearSessionCookie,
@@ -47,7 +48,7 @@ export async function loginAction(
     userId: user.id,
     email: user.email,
     name: user.name,
-    role: user.role,
+    role: user.role as Role,
   });
 
   redirect("/dashboard");
@@ -78,14 +79,14 @@ export async function registerAction(
 
   const hashed = await hashPassword(password);
   const user = await db.user.create({
-    data: { name, email, password: hashed, role },
+    data: { name, email, password: hashed, role: role as Role },
   });
 
   await createSessionCookie({
     userId: user.id,
     email: user.email,
     name: user.name,
-    role: user.role,
+    role: user.role as Role,
   });
 
   redirect("/dashboard");

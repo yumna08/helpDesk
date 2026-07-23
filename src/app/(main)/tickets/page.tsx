@@ -1,10 +1,13 @@
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { TicketTable } from "@/components/TicketTable";
 import { TicketFilters } from "@/components/TicketFilters";
 import { PRIORITY_ORDER } from "@/lib/permissions";
-import type { Category, Priority, Status } from "@prisma/client";
+import type { Category, Priority, Status } from "@/lib/domain-types";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 
 const TICKET_SELECT = {
   id: true,
@@ -30,20 +33,25 @@ export default async function TicketsPage({
 
   const where: Record<string, unknown> = {};
 
-  // Role-based scoping: this mirrors dashboard scope so the ticket list
-  // never leaks tickets a role shouldn't see, regardless of filters applied.
   if (session.role === "TECHNICAL") {
     where.assignedToId = session.userId;
   } else if (session.role === "EMPLOYEE") {
     where.createdById = session.userId;
   }
 
+  const totalTickets = await db.ticket.count({ where });
+  const openTickets = await db.ticket.count({
+    where: {
+      ...where,
+      status: { in: ["OPEN", "ASSIGNED", "IN_PROGRESS"] },
+    },
+  });
+
   if (status) where.status = status as Status;
   if (priority) where.priority = priority as Priority;
   if (category) where.category = category as Category;
   if (search) where.title = { contains: search, mode: "insensitive" };
 
-  // Managers get the extra "assigned to" filter, including "unassigned".
   if (session.role === "MANAGER" && assignedTo) {
     where.assignedToId = assignedTo === "unassigned" ? null : assignedTo;
   }
@@ -67,29 +75,37 @@ export default async function TicketsPage({
   const technicalUsers =
     session.role === "MANAGER"
       ? await db.user.findMany({
-          where: { role: "TECHNICAL" },
-          select: { id: true, name: true },
-          orderBy: { name: "asc" },
-        })
+        where: { role: "TECHNICAL" },
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
+      })
       : [];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Tickets</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          {session.role === "MANAGER"
-            ? "All tickets in the system."
-            : session.role === "TECHNICAL"
-            ? "Tickets assigned to you."
-            : "Tickets you've submitted."}
-        </p>
+    <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="flex items-start justify-between mb-8">
+        <div>
+          <h1 className="page-title">Tickets</h1>
+          <p className="page-subtitle">
+            {totalTickets} total · {openTickets} active
+          </p>
+        </div>
+        <Link href="/tickets/create" className="btn-primary gap-2">
+          <Plus className="w-4 h-4" />
+          New Ticket
+        </Link>
       </div>
 
-      <TicketFilters
-        technicalUsers={technicalUsers}
-        showAssignedFilter={session.role === "MANAGER"}
-      />
+      <Suspense
+        fallback={
+          <div className="h-10 rounded-xl bg-surface-elevated animate-pulse mb-4" />
+        }
+      >
+        <TicketFilters
+          technicalUsers={technicalUsers}
+          showAssignedFilter={session.role === "MANAGER"}
+        />
+      </Suspense>
 
       <TicketTable tickets={tickets} />
     </div>

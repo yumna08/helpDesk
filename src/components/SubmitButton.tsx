@@ -14,17 +14,13 @@ type Props = {
 };
 
 const VARIANTS: Record<string, string> = {
-  primary: "bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-indigo-300",
-  secondary:
-    "bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 disabled:opacity-50",
-  danger: "bg-red-600 text-white hover:bg-red-700 disabled:bg-red-300",
-  ghost: "text-slate-600 hover:bg-slate-100 disabled:opacity-50",
+  primary: "btn-primary",
+  secondary: "btn-secondary",
+  danger:
+    "inline-flex items-center justify-center rounded-xl bg-red-500/20 border border-red-500/30 px-5 py-2.5 text-sm font-bold text-red-400 hover:bg-red-500/30 disabled:opacity-50",
+  ghost: "btn-ghost",
 };
 
-// Pending state is passed explicitly (from useTransition in the parent form)
-// rather than read via useFormStatus, since our forms dispatch Server
-// Actions manually after React Hook Form validates client-side, not through
-// a native <form action={...}> submission that useFormStatus tracks.
 export function SubmitButton({
   children,
   className,
@@ -40,11 +36,7 @@ export function SubmitButton({
       type={type}
       disabled={pending || disabled}
       onClick={onClick}
-      className={cn(
-        "inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed",
-        VARIANTS[variant],
-        className
-      )}
+      className={cn(VARIANTS[variant], className)}
     >
       {pending ? pendingText : children}
     </button>

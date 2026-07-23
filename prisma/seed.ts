@@ -1,4 +1,4 @@
-import { PrismaClient, Category, Priority, Status } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const db = new PrismaClient();
@@ -16,47 +16,42 @@ async function main() {
 
   const hashed = await bcrypt.hash(PASSWORD, 10);
 
-  const [manager1, manager2] = await Promise.all([
-    db.user.create({
-      data: { email: "manager1@company.com", password: hashed, name: "Morgan Lee", role: "MANAGER" },
-    }),
-    db.user.create({
-      data: { email: "manager2@company.com", password: hashed, name: "Priya Shah", role: "MANAGER" },
-    }),
-  ]);
+  const manager1 = await db.user.create({
+    data: { email: "manager1@company.com", password: hashed, name: "Morgan Lee", role: "MANAGER" },
+  });
+  const manager2 = await db.user.create({
+    data: { email: "manager2@company.com", password: hashed, name: "Priya Shah", role: "MANAGER" },
+  });
 
-  const [tech1, tech2, tech3] = await Promise.all([
-    db.user.create({
-      data: { email: "tech1@company.com", password: hashed, name: "Sam Rivera", role: "TECHNICAL" },
-    }),
-    db.user.create({
-      data: { email: "tech2@company.com", password: hashed, name: "Jordan Kim", role: "TECHNICAL" },
-    }),
-    db.user.create({
-      data: { email: "tech3@company.com", password: hashed, name: "Casey Nguyen", role: "TECHNICAL" },
-    }),
-  ]);
+  const tech1 = await db.user.create({
+    data: { email: "tech1@company.com", password: hashed, name: "Sam Rivera", role: "TECHNICAL" },
+  });
+  const tech2 = await db.user.create({
+    data: { email: "tech2@company.com", password: hashed, name: "Jordan Kim", role: "TECHNICAL" },
+  });
+  const tech3 = await db.user.create({
+    data: { email: "tech3@company.com", password: hashed, name: "Casey Nguyen", role: "TECHNICAL" },
+  });
 
-  const [emp1, emp2, emp3] = await Promise.all([
-    db.user.create({
-      data: { email: "emp1@company.com", password: hashed, name: "Alex Turner", role: "EMPLOYEE" },
-    }),
-    db.user.create({
-      data: { email: "emp2@company.com", password: hashed, name: "Bailey Chen", role: "EMPLOYEE" },
-    }),
-    db.user.create({
-      data: { email: "emp3@company.com", password: hashed, name: "Dana Okafor", role: "EMPLOYEE" },
-    }),
-  ]);
+  const emp1 = await db.user.create({
+    data: { email: "emp1@company.com", password: hashed, name: "Alex Turner", role: "EMPLOYEE" },
+  });
+  const emp2 = await db.user.create({
+    data: { email: "emp2@company.com", password: hashed, name: "Bailey Chen", role: "EMPLOYEE" },
+  });
+  const emp3 = await db.user.create({
+    data: { email: "emp3@company.com", password: hashed, name: "Dana Okafor", role: "EMPLOYEE" },
+  });
 
   console.log("Created 8 users.");
 
   type SeedTicket = {
+    seq: number;
     title: string;
     description: string;
-    category: Category;
-    priority: Priority;
-    status: Status;
+    category: string;
+    priority: string;
+    status: string;
     createdBy: typeof emp1;
     assignedTo?: typeof tech1;
     comments?: { author: typeof emp1; content: string }[];
@@ -66,6 +61,7 @@ async function main() {
 
   const tickets: SeedTicket[] = [
     {
+      seq: 1,
       title: "Laptop won't power on after update",
       description:
         "Installed the mandatory Windows update last night and now the laptop won't boot past the manufacturer logo. Tried holding power button for 10s, no change.",
@@ -75,6 +71,7 @@ async function main() {
       createdBy: emp1,
     },
     {
+      seq: 2,
       title: "VPN disconnects every 10 minutes",
       description:
         "Since switching to the new office wifi, my VPN client drops the connection roughly every 10 minutes, forcing me to log back in. Happens on both the laptop and desktop.",
@@ -85,6 +82,7 @@ async function main() {
       assignedTo: tech1,
     },
     {
+      seq: 3,
       title: "Conference room B projector not turning on",
       description:
         "The HDMI and power cables are both connected but the projector in conference room B shows no signal and the power light doesn't turn on at all.",
@@ -98,6 +96,7 @@ async function main() {
       ],
     },
     {
+      seq: 4,
       title: "Need access to shared finance drive",
       description:
         "I was recently moved to the finance team and still don't have read/write access to the shared finance drive on the file server.",
@@ -112,6 +111,7 @@ async function main() {
       ],
     },
     {
+      seq: 5,
       title: "Broken chair in open office area",
       description:
         "One of the chairs near desk cluster C has a broken wheel and tips backward. Marked it with a sticky note so no one sits in it.",
@@ -128,6 +128,7 @@ async function main() {
       ],
     },
     {
+      seq: 6,
       title: "Payroll direct deposit went to old bank account",
       description:
         "I updated my direct deposit info two weeks ago but this month's paycheck still went to my old, closed bank account.",
@@ -138,6 +139,7 @@ async function main() {
       assignedTo: tech2,
     },
     {
+      seq: 7,
       title: "Printer on 3rd floor jams constantly",
       description:
         "The Xerox printer near the 3rd floor kitchen jams on almost every print job, usually with a paper feed error on tray 2.",
@@ -147,6 +149,7 @@ async function main() {
       createdBy: emp1,
     },
     {
+      seq: 8,
       title: "Requesting second monitor for new hire",
       description:
         "Our new hire starting Monday still needs a second monitor set up at their desk (row 4, desk 12).",
@@ -156,6 +159,7 @@ async function main() {
       createdBy: emp2,
     },
     {
+      seq: 9,
       title: "Can't reset password - reset email never arrives",
       description:
         "I've requested a password reset for the internal portal five times over the last hour and never receive the reset email, even checking spam.",
@@ -169,6 +173,7 @@ async function main() {
       ],
     },
     {
+      seq: 10,
       title: "Question about parental leave policy",
       description:
         "Could someone walk me through how parental leave interacts with accrued PTO? The handbook section is a little ambiguous for my situation.",
@@ -183,6 +188,7 @@ async function main() {
       ],
     },
     {
+      seq: 11,
       title: "Office AC blowing warm air on 2nd floor",
       description:
         "The air conditioning on the entire 2nd floor has been blowing warm air since this morning. It's getting uncomfortable for the whole team.",
@@ -193,6 +199,7 @@ async function main() {
       assignedTo: tech2,
     },
     {
+      seq: 12,
       title: "Software license expired for design tools",
       description:
         "The whole design team's Figma/Adobe licenses show as expired as of this morning, blocking all of our work.",
@@ -207,6 +214,7 @@ async function main() {
       ],
     },
     {
+      seq: 13,
       title: "Mislabeled expense category in reimbursement tool",
       description:
         "My travel reimbursement was categorized as 'Other' instead of 'Travel', which is affecting my budget reporting.",
@@ -216,6 +224,7 @@ async function main() {
       createdBy: emp1,
     },
     {
+      seq: 14,
       title: "Onboarding laptop missing required software",
       description:
         "The laptop issued to me on day one is missing the standard dev toolchain (git, docker, VS Code) that IT usually preinstalls.",
@@ -236,6 +245,7 @@ async function main() {
   for (const t of tickets) {
     const ticket = await db.ticket.create({
       data: {
+        seq: t.seq,
         title: t.title,
         description: t.description,
         category: t.category,
@@ -245,72 +255,28 @@ async function main() {
         assignedToId: t.assignedTo?.id ?? null,
         resolvedAt: t.resolved ? new Date() : null,
         closedAt: t.closed ? new Date() : null,
+        activities: {
+          create: {
+            actorId: t.createdBy.id,
+            type: "CREATED",
+            description: `Ticket created by ${t.createdBy.name}.`,
+          },
+        },
       },
     });
 
-    const activityData: { ticketId: string; actorId: string; type: string; description: string }[] = [
-      {
-        ticketId: ticket.id,
-        actorId: t.createdBy.id,
-        type: "CREATED",
-        description: `Ticket created by ${t.createdBy.name}.`,
-      },
-    ];
-
-    if (t.assignedTo) {
-      activityData.push({
-        ticketId: ticket.id,
-        actorId: manager1.id,
-        type: "ASSIGNED",
-        description: `Assigned to ${t.assignedTo.name} by ${manager1.name}.`,
+    if (t.comments?.length) {
+      await db.comment.createMany({
+        data: t.comments.map((comment) => ({
+          ticketId: ticket.id,
+          authorId: comment.author.id,
+          content: comment.content,
+        })),
       });
-    }
-    if (t.status === "IN_PROGRESS" || t.status === "RESOLVED" || t.status === "CLOSED") {
-      activityData.push({
-        ticketId: ticket.id,
-        actorId: t.assignedTo?.id ?? manager1.id,
-        type: "STATUS_CHANGED",
-        description: `Status changed to In Progress by ${t.assignedTo?.name ?? manager1.name}.`,
-      });
-    }
-    if (t.status === "RESOLVED" || t.status === "CLOSED") {
-      activityData.push({
-        ticketId: ticket.id,
-        actorId: t.assignedTo?.id ?? manager1.id,
-        type: "STATUS_CHANGED",
-        description: `Status changed to Resolved by ${t.assignedTo?.name ?? manager1.name}.`,
-      });
-    }
-    if (t.status === "CLOSED") {
-      activityData.push({
-        ticketId: ticket.id,
-        actorId: t.createdBy.id,
-        type: "STATUS_CHANGED",
-        description: `Status changed to Closed by ${t.createdBy.name}.`,
-      });
-    }
-
-    await db.activity.createMany({ data: activityData });
-
-    if (t.comments) {
-      for (const c of t.comments) {
-        await db.comment.create({
-          data: { ticketId: ticket.id, authorId: c.author.id, content: c.content },
-        });
-        await db.activity.create({
-          data: {
-            ticketId: ticket.id,
-            actorId: c.author.id,
-            type: "COMMENT",
-            description: `${c.author.name} added a comment.`,
-          },
-        });
-      }
     }
   }
 
-  console.log(`Created ${tickets.length} tickets with activity + comments.`);
-  console.log("Seed complete.");
+  console.log("Created seed tickets.");
 }
 
 main()

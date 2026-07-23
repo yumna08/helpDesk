@@ -1,4 +1,4 @@
-import type { Role, Status } from "@prisma/client";
+import type { Role, Status } from "@/lib/domain-types";
 
 // Single source of truth for "who can do what" so Server Actions and UI
 // stay in sync instead of duplicating role checks ad hoc. UI checks are for

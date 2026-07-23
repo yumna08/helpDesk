@@ -40,65 +40,50 @@ export function RegisterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onValid)} className="mt-4 space-y-4" noValidate>
+    <form onSubmit={handleSubmit(onValid)} className="mt-6 space-y-4" noValidate>
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-slate-700">
+        <label htmlFor="name" className="label">
           Full name
         </label>
-        <input
-          id="name"
-          {...register("name")}
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-        />
-        {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>}
+        <input id="name" {...register("name")} className="input-field" />
+        {errors.name && <p className="mt-1 text-xs text-red-400">{errors.name.message}</p>}
       </div>
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-slate-700">
+        <label htmlFor="email" className="label">
           Email
         </label>
-        <input
-          id="email"
-          type="email"
-          {...register("email")}
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-        />
-        {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}
+        <input id="email" type="email" {...register("email")} className="input-field" />
+        {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email.message}</p>}
       </div>
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-slate-700">
+        <label htmlFor="password" className="label">
           Password
         </label>
         <input
           id="password"
           type="password"
           {...register("password")}
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="input-field"
         />
         {errors.password && (
-          <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>
+          <p className="mt-1 text-xs text-red-400">{errors.password.message}</p>
         )}
       </div>
       <div>
-        <label htmlFor="role" className="block text-sm font-medium text-slate-700">
+        <label htmlFor="role" className="label">
           Role
         </label>
-        <select
-          id="role"
-          {...register("role")}
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-        >
+        <select id="role" {...register("role")} className="input-field">
           {ROLE_OPTIONS.map((r) => (
-            <option key={r.value} value={r.value}>
+            <option key={r.value} value={r.value} className="bg-surface-elevated">
               {r.label}
             </option>
           ))}
         </select>
-        {errors.role && <p className="mt-1 text-xs text-red-600">{errors.role.message}</p>}
+        {errors.role && <p className="mt-1 text-xs text-red-400">{errors.role.message}</p>}
       </div>
 
-      {state?.error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
-      )}
+      {state?.error && <p className="error-box">{state.error}</p>}
 
       <SubmitButton className="w-full" pending={isPending} pendingText="Creating account…">
         Create account

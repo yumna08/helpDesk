@@ -17,15 +17,13 @@ export function LoginForm() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     mode: "onBlur",
   });
 
-  // React Hook Form gives instant client-side feedback using the *same* Zod
-  // schema the Server Action re-validates with. Client validation is UX
-  // only - the server never trusts it.
   function onValid(data: LoginInput) {
     const fd = new FormData();
     fd.set("email", data.email);
@@ -33,42 +31,74 @@ export function LoginForm() {
     startTransition(() => dispatch(fd));
   }
 
+  const setDemoAccount = (email: string) => {
+    setValue("email", email);
+    setValue("password", "password123");
+  };
+
   return (
-    <form onSubmit={handleSubmit(onValid)} className="mt-4 space-y-4" noValidate>
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-slate-700">
-          Email
-        </label>
-        <input
-          id="email"
-          type="email"
-          {...register("email")}
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-        />
-        {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}
-      </div>
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium text-slate-700">
-          Password
-        </label>
-        <input
-          id="password"
-          type="password"
-          {...register("password")}
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-        />
-        {errors.password && (
-          <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>
-        )}
+    <div className="space-y-6">
+      <div className="card-elevated p-4 border-accent/10">
+        <div className="text-[10px] font-bold text-accent mb-3 uppercase tracking-widest">
+          Demo Accounts
+        </div>
+        <div className="flex gap-2">
+          {[
+            { label: "Manager", email: "manager1@company.com" },
+            { label: "Tech", email: "tech1@company.com" },
+            { label: "Employee", email: "emp1@company.com" },
+          ].map((demo) => (
+            <button
+              key={demo.email}
+              type="button"
+              onClick={() => setDemoAccount(demo.email)}
+              className="px-3 py-1.5 bg-surface border border-border rounded-xl text-xs font-bold text-white hover:border-accent/40 hover:bg-accent-dim transition-colors"
+            >
+              {demo.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {state?.error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
-      )}
+      <form onSubmit={handleSubmit(onValid)} className="space-y-5" noValidate>
+        <div>
+          <label htmlFor="email" className="label">
+            Email address
+          </label>
+          <input
+            id="email"
+            type="email"
+            placeholder="you@company.com"
+            {...register("email")}
+            className="input-field"
+          />
+          {errors.email && (
+            <p className="mt-1.5 text-xs text-red-400">{errors.email.message}</p>
+          )}
+        </div>
 
-      <SubmitButton className="w-full" pending={isPending} pendingText="Logging in…">
-        Log in
-      </SubmitButton>
-    </form>
+        <div>
+          <label htmlFor="password" className="label">
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            {...register("password")}
+            className="input-field tracking-widest"
+          />
+          {errors.password && (
+            <p className="mt-1.5 text-xs text-red-400">{errors.password.message}</p>
+          )}
+        </div>
+
+        {state?.error && <p className="error-box">{state.error}</p>}
+
+        <SubmitButton className="w-full" pending={isPending} pendingText="Signing in…">
+          Sign in
+        </SubmitButton>
+      </form>
+    </div>
   );
 }

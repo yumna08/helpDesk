@@ -2,11 +2,143 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --border: 220 13% 91%;
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-body {
-  background-color: #f8fafc;
-  color: #0f172a;
+@keyframes float-up-down {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes glow-pulse {
+
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(1.08);
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-background text-white antialiased;
+  }
+
+  ::selection {
+    @apply bg-accent text-black;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in-up {
+    animation: fade-in-up 700ms ease-out both;
+  }
+
+  .animate-float-up-down {
+    animation: float-up-down 5s ease-in-out infinite;
+  }
+
+  .animate-glow-pulse {
+    animation: glow-pulse 6s ease-in-out infinite;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-card border border-border bg-surface shadow-card;
+  }
+
+  .card-elevated {
+    @apply rounded-card border border-border bg-surface-elevated shadow-card;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-xl bg-accent px-5 py-2.5 text-sm font-bold text-black transition-all hover:bg-accent/90 hover:shadow-glow disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-xl border border-border bg-surface-elevated px-5 py-2.5 text-sm font-semibold text-white transition-all hover:border-accent/40 hover:bg-accent-dim disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:bg-surface-elevated hover:text-white disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .input-field {
+    @apply w-full rounded-xl border border-border bg-surface-elevated px-4 py-3 text-sm text-white placeholder:text-muted focus:border-accent/50 focus:outline-none focus:ring-1 focus:ring-accent/30;
+  }
+
+  .select-field {
+    @apply rounded-xl border border-border bg-surface-elevated px-3 py-2.5 text-sm font-medium text-white focus:border-accent/50 focus:outline-none focus:ring-1 focus:ring-accent/30;
+  }
+
+  .label {
+    @apply block text-sm font-semibold text-white mb-1.5;
+  }
+
+  .page-title {
+    @apply text-2xl font-bold text-white tracking-tight;
+  }
+
+  .page-subtitle {
+    @apply text-sm text-text-secondary mt-1;
+  }
+
+  .nav-link {
+    @apply flex items-center justify-between px-3 py-3 rounded-xl text-sm font-medium transition-all;
+  }
+
+  .nav-link-active {
+    @apply bg-accent-dim text-accent border border-accent/20;
+  }
+
+  .nav-link-inactive {
+    @apply text-text-secondary hover:bg-surface-elevated hover:text-white;
+  }
+
+  .badge-pill {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold;
+  }
+
+  .error-box {
+    @apply rounded-xl bg-red-500/10 border border-red-500/20 px-3 py-2 text-sm text-red-400;
+  }
 }

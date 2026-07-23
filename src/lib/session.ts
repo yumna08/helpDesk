@@ -1,5 +1,5 @@
 import { SignJWT, jwtVerify } from "jose";
-import type { Role } from "@prisma/client";
+import type { Role } from "@/lib/domain-types";
 
 // This file is intentionally free of "server-only" and bcrypt (Node APIs)
 // so it can also run in the Edge runtime, i.e. middleware.ts.

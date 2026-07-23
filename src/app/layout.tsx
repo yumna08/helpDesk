@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import { Nav } from "@/components/Nav";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Helpdesk",
+  title: "HelpDesk",
   description: "Helpdesk Management System",
 };
 
@@ -13,10 +15,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">
-        <Nav />
-        <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+    <html lang="en" className="dark">
+      <body className={`${inter.variable} font-sans min-h-screen bg-background text-white antialiased`}>
+        {children}
       </body>
     </html>
   );

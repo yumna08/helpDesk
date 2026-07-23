@@ -19,7 +19,7 @@ import {
   updateStatusSchema,
 } from "@/lib/validations";
 import { ticketNumber } from "@/lib/utils";
-import type { Status } from "@prisma/client";
+import type { Status } from "@/lib/domain-types";
 
 export type ActionResult = {
   success: boolean;
@@ -57,8 +57,13 @@ export async function createTicketAction(
     return { success: false, error: firstIssue?.message ?? "Invalid input." };
   }
 
+  const latestTicket = await db.ticket.findFirst({
+    orderBy: { seq: "desc" },
+  });
+
   const ticket = await db.ticket.create({
     data: {
+      seq: (latestTicket?.seq ?? 0) + 1,
       ...parsed.data,
       createdById: session.userId,
       status: "OPEN",
@@ -114,7 +119,8 @@ export async function assignTicketAction(
     }
   }
 
-  const newStatus: Status = ticket.status === "OPEN" ? "ASSIGNED" : ticket.status;
+  const newStatus: Status =
+    ticket.status === "OPEN" ? "ASSIGNED" : (ticket.status as Status);
 
   await db.$transaction([
     db.ticket.update({
@@ -161,11 +167,32 @@ export async function updateTicketStatusAction(
     return { success: false, error: "You do not have access to this ticket." };
   }
 
-  if (!canTransition(session.role, ticket.status, status)) {
+  if (!canTransition(session.role, ticket.status as Status, status as Status)) {
     return {
       success: false,
       error: `You are not allowed to move this ticket from ${ticket.status} to ${status}.`,
     };
+  }
+
+  // ASSIGNED requires an assignee — managers must use the assign action,
+  // not a bare status change, so tickets never sit "Assigned" with nobody on them.
+  if (status === "ASSIGNED" && !ticket.assignedToId) {
+    return {
+      success: false,
+      error: "Assign a technical employee before marking this ticket as Assigned.",
+    };
+  }
+
+  if (
+    (status === "IN_PROGRESS" || status === "RESOLVED") &&
+    session.role === "TECHNICAL" &&
+    ticket.assignedToId !== session.userId
+  ) {
+    return { success: false, error: "You can only update tickets assigned to you." };
+  }
+
+  if (status === "CLOSED" && session.role === "EMPLOYEE" && ticket.createdById !== session.userId) {
+    return { success: false, error: "Only the ticket creator can confirm resolution." };
   }
 
   const now = new Date();

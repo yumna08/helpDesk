@@ -48,12 +48,10 @@ export function CommentForm({ ticketId }: { ticketId: string }) {
         {...register("content")}
         rows={3}
         placeholder="Add a comment or update…"
-        className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        className="input-field resize-none"
       />
-      {errors.content && <p className="text-xs text-red-600">{errors.content.message}</p>}
-      {state?.error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-xs text-red-700">{state.error}</p>
-      )}
+      {errors.content && <p className="text-xs text-red-400">{errors.content.message}</p>}
+      {state?.error && <p className="error-box text-xs">{state.error}</p>}
       <div className="flex justify-end">
         <SubmitButton pending={isPending} pendingText="Posting…">
           Post comment

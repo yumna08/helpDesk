@@ -8,7 +8,7 @@ import {
   updateTicketPriorityAction,
 } from "@/actions/tickets";
 import { SubmitButton } from "@/components/SubmitButton";
-import type { Role, Status } from "@prisma/client";
+import type { Role, Status } from "@/lib/domain-types";
 
 type TechOption = { id: string; name: string };
 
@@ -61,8 +61,8 @@ export function TicketActions({
 
   const canAssign = role === "MANAGER" && status !== "RESOLVED" && status !== "CLOSED";
   const canChangePriority = role === "MANAGER" && status !== "CLOSED";
-  // Employee can only confirm-close from Resolved; enforced again server-side.
   const visibleNextSteps = nextSteps.filter((s) => {
+    if (s === "ASSIGNED") return false;
     if (role === "MANAGER") return true;
     if (role === "TECHNICAL") return s === "IN_PROGRESS" || s === "RESOLVED";
     if (role === "EMPLOYEE") return s === "CLOSED" && isCreator;
@@ -70,25 +70,27 @@ export function TicketActions({
   });
 
   return (
-    <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-4">
-      <h3 className="text-sm font-semibold text-slate-900">Actions</h3>
+    <div className="card p-5 space-y-4">
+      <h3 className="text-sm font-bold text-white">Actions</h3>
 
-      {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-xs text-red-700">{error}</p>
-      )}
+      {error && <p className="error-box text-xs">{error}</p>}
 
       {canAssign && (
         <div>
-          <label className="block text-xs font-medium text-slate-600">Assign to</label>
-          <div className="mt-1 flex gap-2">
+          <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1.5">
+            Assign to
+          </label>
+          <div className="flex gap-2">
             <select
               value={selectedTech}
               onChange={(e) => setSelectedTech(e.target.value)}
-              className="flex-1 rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+              className="select-field flex-1"
             >
-              <option value="">Select technical employee…</option>
+              <option value="" className="bg-surface-elevated">
+                Select technical employee…
+              </option>
               {technicalUsers.map((t) => (
-                <option key={t.id} value={t.id}>
+                <option key={t.id} value={t.id} className="bg-surface-elevated">
                   {t.name}
                 </option>
               ))}
@@ -113,15 +115,17 @@ export function TicketActions({
 
       {canChangePriority && (
         <div>
-          <label className="block text-xs font-medium text-slate-600">Priority</label>
-          <div className="mt-1 flex gap-2">
+          <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1.5">
+            Priority
+          </label>
+          <div className="flex gap-2">
             <select
               value={selectedPriority}
               onChange={(e) => setSelectedPriority(e.target.value)}
-              className="flex-1 rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+              className="select-field flex-1"
             >
               {["LOW", "MEDIUM", "HIGH", "CRITICAL"].map((p) => (
-                <option key={p} value={p}>
+                <option key={p} value={p} className="bg-surface-elevated">
                   {p}
                 </option>
               ))}
@@ -146,8 +150,10 @@ export function TicketActions({
 
       {visibleNextSteps.length > 0 && (
         <div>
-          <label className="block text-xs font-medium text-slate-600">Status</label>
-          <div className="mt-1 flex flex-wrap gap-2">
+          <label className="block text-xs font-bold text-muted uppercase tracking-wider mb-1.5">
+            Status
+          </label>
+          <div className="flex flex-wrap gap-2">
             {visibleNextSteps.map((next) => (
               <SubmitButton
                 key={next}
@@ -168,7 +174,7 @@ export function TicketActions({
       )}
 
       {!canAssign && !canChangePriority && visibleNextSteps.length === 0 && (
-        <p className="text-xs text-slate-500">No actions available for this ticket right now.</p>
+        <p className="text-xs text-muted">No actions available for this ticket right now.</p>
       )}
     </div>
   );
