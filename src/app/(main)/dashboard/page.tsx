@@ -124,6 +124,7 @@ async function ManagerDashboard({ name }: { name: string }) {
     closed,
     critical,
     resolvedToday,
+    unassigned,
     techWorkload,
     byStatus,
     byPriority,
@@ -144,6 +145,7 @@ async function ManagerDashboard({ name }: { name: string }) {
     db.ticket.count({
       where: { resolvedAt: { gte: today } },
     }),
+    db.ticket.count({ where: { status: "OPEN", assignedToId: null } }),
     db.user.findMany({
       where: { role: "TECHNICAL" },
       select: {
@@ -166,16 +168,24 @@ async function ManagerDashboard({ name }: { name: string }) {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">
-          {greeting}, {firstName}
-        </h1>
-        <p className="text-sm text-text-secondary mt-1">
-          Here&apos;s what&apos;s happening with your team today.
-        </p>
+      <div className="card border-accent/20 bg-gradient-to-r from-accent-dim/50 to-surface p-4 sm:p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">
+              {greeting}, {firstName}
+            </h1>
+            <p className="text-sm text-text-secondary mt-1">
+              Here&apos;s what&apos;s happening with your team today.
+            </p>
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-surface px-3 py-1.5 text-xs font-semibold text-accent">
+            <Sparkles className="w-3.5 h-3.5" />
+            Manager Console
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
         <StatCard
           label="Total Tickets"
           value={total}
@@ -189,6 +199,13 @@ async function ManagerDashboard({ name }: { name: string }) {
           icon={<Sparkles className="w-5 h-5" />}
           iconBg="bg-accent-dim"
           iconColor="text-accent"
+        />
+        <StatCard
+          label="Unassigned"
+          value={unassigned}
+          icon={<Clock className="w-5 h-5" />}
+          iconBg="bg-amber-500/15"
+          iconColor="text-amber-400"
         />
         <StatCard
           label="Critical"
