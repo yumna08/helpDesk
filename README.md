@@ -26,7 +26,10 @@ cp .env.example .env
 ```
 
 Edit `.env`:
-- `DATABASE_URL` — a PostgreSQL connection string. Easiest local option: `docker run --name helpdesk-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=helpdesk -p 5432:5432 -d postgres:16`, then use `postgresql://postgres:postgres@localhost:5432/helpdesk?schema=public`.
+- `DATABASE_URL` — any PostgreSQL connection string (**Docker is optional**, not required).
+  - **Hosted (recommended for demos):** Neon, Supabase, Railway, etc.
+  - **Local Postgres:** `postgresql://postgres:postgres@localhost:5432/helpdesk?schema=public`
+  - **Optional Docker Postgres:** `docker run --name helpdesk-db -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=helpdesk -p 5432:5432 -d postgres:16`
 - `JWT_SECRET` — any long random string, e.g. `openssl rand -base64 32`.
 
 ### 3. Create the database schema
@@ -79,9 +82,11 @@ src/
   middleware.ts             # route protection (redirects unauthenticated users)
   app/
     login/, register/         # auth pages
-    dashboard/                 # role-specific dashboard (Manager / Technical / Employee)
-    tickets/                    # list (filter/sort/search), new (create), [id] (detail)
-  components/                  # shared UI (badges, tables, filters, nav)
+    (main)/
+      layout.tsx               # authenticated shell (sidebar + header)
+      dashboard/               # role-specific dashboard (Manager / Technical / Employee)
+      tickets/                 # list (filter/sort/search), create, [id] (detail)
+  components/                  # shared UI (badges, tables, filters, layout)
 ```
 
 ## Design decisions (for interview discussion)
@@ -101,7 +106,3 @@ src/
 **Security considerations.** Passwords are hashed with bcrypt (cost 10). Session tokens are signed JWTs in an httpOnly, `sameSite=lax`, `secure`-in-production cookie — never accessible to client JS. `middleware.ts` verifies the JWT on every request and redirects unauthenticated users before any page renders. Every Server Action re-derives the user from the cookie server-side rather than trusting any client-supplied user ID. Ticket detail lookups return a 404 (not a 403) for tickets a role can't view, to avoid confirming a ticket ID exists to someone unauthorized to see it. Login errors are deliberately vague ("Invalid email or password") to avoid leaking which emails are registered.
 
 **Performance.** List/dashboard queries use Prisma `select` to fetch only the fields the UI needs (avoiding over-fetching relations). Dashboard stat cards run as parallel `Promise.all` count queries rather than fetching full rows and counting in JS. Indexes are added on `Ticket.status`, `.assignedToId`, `.createdById`, and `.priority` since these are the columns every filter/dashboard query touches.
-
-## A note on this build
-
-This project was scaffolded and code-reviewed in a sandboxed environment without access to `binaries.prisma.sh`, so `prisma generate` / `next build` could not be executed end-to-end here. The code was manually reviewed and type-checked as far as possible without the generated Prisma client (no broken imports, no logic issues found). Run the setup steps above locally — with full internet access, `prisma generate` will succeed and everything should run as expected. If anything doesn't compile on your machine, it's most likely a Prisma Client field name mismatch, easy to spot from the error message.
