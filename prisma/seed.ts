@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Category, Priority, Status } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const db = new PrismaClient();
@@ -49,9 +49,9 @@ async function main() {
     seq: number;
     title: string;
     description: string;
-    category: string;
-    priority: string;
-    status: string;
+    category: Category;
+    priority: Priority;
+    status: Status;
     createdBy: typeof emp1;
     assignedTo?: typeof tech1;
     comments?: { author: typeof emp1; content: string }[];

@@ -3,8 +3,36 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MANAGER
+  TECHNICAL
+  EMPLOYEE
+}
+
+enum Category {
+  IT_SUPPORT
+  FACILITIES
+  HR
+  OTHER
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum Status {
+  OPEN
+  ASSIGNED
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
 }
 
 model User {
@@ -12,7 +40,7 @@ model User {
   email     String   @unique
   password  String
   name      String
-  role      String
+  role      Role
   createdAt DateTime @default(now())
 
   createdTickets  Ticket[]  @relation("CreatedTickets")
@@ -26,13 +54,13 @@ model User {
 // "count rows and +1" approach.
 model Ticket {
   id     String @id @default(cuid())
-  seq    Int    @unique
+  seq    Int    @unique @default(autoincrement())
 
   title       String
   description String
-  category    String
-  priority    String
-  status      String   @default("OPEN")
+  category    Category
+  priority    Priority
+  status      Status   @default(OPEN)
 
   createdById String
   createdBy   User     @relation("CreatedTickets", fields: [createdById], references: [id])
